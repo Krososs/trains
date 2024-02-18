@@ -1,4 +1,4 @@
-package pl.krajos.trains;
+package com.krososs.trains;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
