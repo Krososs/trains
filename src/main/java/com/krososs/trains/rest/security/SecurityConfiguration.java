@@ -21,10 +21,12 @@ public class SecurityConfiguration {
         http.authorizeHttpRequests(request ->
                         request.requestMatchers("auth/**").permitAll()
                                 .requestMatchers("/h2-console/**").permitAll()
+                                .requestMatchers("app/**").permitAll()
                                 .anyRequest().authenticated())
                 .headers(AbstractHttpConfigurer::disable)
                 .csrf(csrf -> csrf .ignoringRequestMatchers("/h2-console/**")
-                        .ignoringRequestMatchers("auth/**").disable())
+                        .ignoringRequestMatchers("auth/**").disable()
+                        )
                 .sessionManagement(manager -> manager.sessionCreationPolicy(STATELESS));
         return http.build();
     }

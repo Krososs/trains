@@ -4,6 +4,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import com.krososs.trains.rest.authentication.DTO.RegisterRequest;
+import com.krososs.trains.websocket.security.SessionStore;
 import lombok.RequiredArgsConstructor;
 import com.krososs.trains.rest.authentication.DTO.LoginRequest;
 import com.krososs.trains.rest.user.User;
@@ -18,6 +19,7 @@ public class AuthenticationService {
 
     private final UserRepository userRepository;
     private final JWTService jwtService;
+    private final SessionStore sessionStore;
     private final PasswordEncoder passwordEncoder;
 
     public void register(RegisterRequest request) {
@@ -30,8 +32,10 @@ public class AuthenticationService {
     }
 
     public Map<String, String> login(LoginRequest loginRequest) {
-        User user = userRepository.findByUsername(loginRequest.getUsername()).orElseThrow();
+        User user = userRepository.findByUsername(loginRequest.getUsername()).orElseThrow(() -> new IllegalArgumentException("User not found"));
         Map<String, String> result = new HashMap<>();
+        String accessToken = jwtService.getAccessToken(user);
+        sessionStore.addToken(accessToken);
         result.put("access_token",jwtService.getAccessToken(user));
         return result;
     }
@@ -44,7 +48,7 @@ public class AuthenticationService {
         return userRepository.findByEmail(email).isPresent();
     }
 
-    public boolean  correctPassword(LoginRequest loginRequest){
+    public boolean correctPassword(LoginRequest loginRequest){
         User user = userRepository.findByUsername(loginRequest.getUsername()).orElseThrow(() -> new IllegalArgumentException("User not found"));
         return passwordEncoder.matches(loginRequest.getPassword(), user.getPassword());
     }
